@@ -6,7 +6,7 @@ class Queue extends Component {
         return (
             <div>
                 <div className="column custom-vid">
-                    <div class="textbox-container">
+                    <div className="textbox-container">
                         <input className="textbox textbox--borderless textbox--url" placeholder="串場影片之 YouTube 連結..." />
                         <button id="search-vid">搜尋</button>
                     </div>

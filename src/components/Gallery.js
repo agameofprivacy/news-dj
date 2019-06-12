@@ -9,6 +9,16 @@ class Gallery extends Component {
 
     render(){
 
+        const dict = {
+            chinese: "華語",
+            taiwanese: "台語",
+            sign: "手語",
+            english: "English",
+            thai: "ภาษาไทย",
+            indonesian: "Indonesian",
+            vietnamese: "tiếng Việt"
+        }
+
         const { items } = this.props;
 
         var children = [];
@@ -16,11 +26,16 @@ class Gallery extends Component {
         items.forEach((item, index) => {
 
             var pills = [];
-            item.pills.forEach((pill) => {
+            item.languages.forEach((language, langIndex) => {
                 pills.push(
-                    <button className="pill pill--small" value={pill.value}>{pill.key}</button>
+                    <button key={"lang" + langIndex} className="pill pill--small" value={language}>{dict[language]}</button>
                 )
             })
+            if (item.subtitles) {
+                pills.push(
+                    <button key={index} className="pill pill--small" value={"subtitles"}>有字幕</button>
+                )
+            }
 
             children.push(
                 <div key={index} className="gallery__item">
