@@ -26,11 +26,13 @@ class Gallery extends Component {
         items.forEach((item, index) => {
 
             var pills = [];
+
             item.languages.forEach((language, langIndex) => {
                 pills.push(
                     <button key={"lang" + langIndex} className="pill pill--small" value={language}>{dict[language]}</button>
                 )
             })
+            
             if (item.subtitles) {
                 pills.push(
                     <button key={index} className="pill pill--small" value={"subtitles"}>有字幕</button>

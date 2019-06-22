@@ -273,7 +273,7 @@ body {
     padding-bottom: 0px;
 
     .textbox-container {
-        margin-bottom: 20px;
+        // margin-bottom: 20px;
         display: flex;
         width: 100%;
         align-items: flex-start;
@@ -295,11 +295,19 @@ body {
     }
 
     .preview {
+        display: flex;
+        flex-direction: column;
         padding: 10px 20px;
         width: 100%;
         box-sizing: border-box;
         margin-bottom: 10px;
         align-items: flex-start;
+
+        .row {
+            padding-top: 15px;
+            padding-bottom: 15px;
+            align-items: flex-start;
+        }
 
         .thumbnail {
             display: block;
@@ -309,6 +317,13 @@ body {
             margin-right: 20px;
             border-radius: 4px;
             border: 0;
+
+            & img {
+                width: 120px !important;  
+                height: 90px !important;
+                object-fit: cover;
+                border-radius: 4px;
+            }
         }
 
         .texts {
@@ -339,7 +354,7 @@ body {
 
     .button--confirm {
         align-self: flex-end;
-        margin-right: 20px;
+        margin-bottom: 10px;
     }
 
 }
@@ -390,7 +405,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     border-top: 1px solid rgb(220,220,220);
-    margin-top: 30px;
+    margin-top: 0px;
     padding: 0;
     list-style: none;
 
