@@ -2,7 +2,7 @@
 const programs = [
 {
   // 晚間新聞
-  "latestVideoIDs": ["l_7qGHDTxUI"]
+  "latestVideoIDs": ["l_7qGHDTxUI"],
   "channelId": "",
   "title":"",
   "description":"",
