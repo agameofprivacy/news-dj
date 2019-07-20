@@ -1,14 +1,12 @@
 import React, {Component} from "react";
+import QueueItem from "./QueueItem";
 
 class Queue extends Component {
 
     state = {
-        preview: {
-            title: "",
-            image: "",
-            description: "",
-            channel: ""
-        },
+        customVidUrlIsValid: false,
+        url: "",
+        preview: undefined,
         queue: [],
     }
 
@@ -56,105 +54,119 @@ class Queue extends Component {
         return !!pattern.test(str);
     }
 
-    addToQueue() {
+    enqueue = () => {
+        let joined = this.state.queue.concat(this.state.preview);
         this.setState({
-            queued: []
+            queue: joined,
+        }, (res) => {
+            console.log("queue", this.state.queue);
+            this.setState({
+                preview: undefined,
+                url: ''
+            })
         })
     }
-      
 
     customVideoUrlUpdated = (e) => {
         console.log(`valid url: ${this.validURL(e.target.value)}`);
         var value = e.target.value;
         if (this.validURL(value)) {
-            window.FB.api(
-                "/",
-                {
-                    id: value,
-                    access_token: "585832711939369|NB3IYtyjITLZ_q5TR61QYUzzzRA"
-                },
-                function (response) {
-                    if (response && !response.error) {
-                        console.log("response", response);
-                        if (typeof(response.title) === "undefined") {
-                            window.FB.api(
-                                "/",
-                                "post",
-                                {
-                                    id: value,
-                                    access_token: "585832711939369|NB3IYtyjITLZ_q5TR61QYUzzzRA"
-                                },
-                                function (response) {
-                                  if (response && !response.error) {
-                                    /* handle the result */
-                                    // update preview area with new image and description
-                                    console.log(response);
-                                    this.setState({
-                                        preview: {
-                                            title: response.title,
-                                            image: response.image[0].url,
-                                            description: response.description.substr(0, 60),
-                                            channel: response.site_name
-                                        }
-                                    });
-                                  }
-                                }.bind(this)
-                            );
-                        } else {
-                            this.setState({
-                                preview: {
-                                    title: response.title,
-                                    image: response.image[0].url,
-                                    description: response.description.substr(0, 60),
-                                    channel: response.site_name
-                                }
-                            });
-                        }                
-                    }
-                }.bind(this)
-            )
+            this.setState({customVidUrlIsValid: true, url: value});
+        } else {
+            this.setState({customVidUrlIsValid: false});
         }
     }
 
+    segueTimeLimitUpdated = (e) => {
+        var value = parseInt(e.target.value);
+        console.log('selected', value);
+        this.props.setAppState({segueTimeLimit: value});
+    }
+
+    fetchVideoDetails = () => {
+        window.FB.api(
+            "/",
+            {
+                id: this.state.url,
+                access_token: "585832711939369|NB3IYtyjITLZ_q5TR61QYUzzzRA"
+            },
+            function (response) {
+                if (response && !response.error) {
+                    console.log("response", response);
+                    if (typeof(response.title) === "undefined") {
+                        window.FB.api(
+                            "/",
+                            "post",
+                            {
+                                id: this.state.url,
+                                access_token: "585832711939369|NB3IYtyjITLZ_q5TR61QYUzzzRA"
+                            },
+                            function (response) {
+                              if (response && !response.error) {
+                                /* handle the result */
+                                // update preview area with new image and description
+                                console.log(response);
+                                this.setState({
+                                    preview: {
+                                        title: response.title,
+                                        image: response.image[0].url,
+                                        description: response.description,
+                                        channel: response.site_name,
+                                        videoId: this.state.url.replace("https://www.youtube.com/watch?v=", "").substr(0, 11)
+                                    }
+                                });
+                                this.enqueue();
+                              }
+                            }.bind(this)
+                        );
+                    } else {
+                        this.setState({
+                            preview: {
+                                title: response.title,
+                                image: response.image[0].url,
+                                description: response.description.substr(0, 60),
+                                channel: response.site_name,
+                                videoId: this.state.url.replace("https://www.youtube.com/watch?v=", "").substr(0, 11)
+                            }
+                        });
+                    }                
+                }
+            }.bind(this)
+        )
+    }
+
+    handleItemClick = (e) => {
+        console.log(e.target);
+    }
+
     render(){
+
+        let queueItems = [];
+
+        this.state.queue.forEach((vid) => {
+            queueItems.push(
+                <QueueItem key={vid.videoId} item={vid} handleClick={this.handleItemClick} />
+            )
+        })
         return (
             <div>
                 <div className="column custom-vid">
-                    <div className="textbox-container">
-                        <input onChange={this.customVideoUrlUpdated} className="textbox textbox--borderless textbox--url" placeholder="串場影片之 YouTube 連結..." />
-                        <button id="search-vid">搜尋</button>
-                    </div>
-                    {
-                        this.state.previewTitle !== "" &&
-                        <div className="preview">
-                            <div className="row">
-                                <div className="thumbnail"><img src={this.state.previewImageUrl} /></div>
-                                <div className="texts column">
-                                    <h5>{this.state.previewTitle}</h5>
-                                    <h6>{this.state.previewChannel}</h6>
-                                    <p>{this.state.previewDescription}</p>
-                                </div>
-                            </div>
-                            <button className="button button--confirm">加入清單</button>
+                    <div className="controls">
+                        <div className="textbox-container">
+                            <input onChange={this.customVideoUrlUpdated} className="textbox textbox--borderless textbox--url" placeholder="串場影片之 YouTube 連結..." />
+                            <button id="search-vid" disabled={!this.state.customVidUrlIsValid} onClick={this.fetchVideoDetails}>加入</button>
                         </div>
-                    }
+                        <div className="row picker-container">
+                            <label>每段串場時間：</label>
+                            <select className="" onChange={this.segueTimeLimitUpdated}>
+                                <option value='-1'>不限</option>
+                                <option value='10'>10分</option>
+                                <option value='30'>30分</option>
+                            </select>
+                        </div>
+                    </div>
                     <ul className="queue">
-                        <li className="queue__item row">
-                            <div className="queue__item__thumbnail"></div>
-                            <div className="texts column">
-                                <h5>公視晚間新聞</h5>
-                                <p>2019年6月3日 加入</p>
-                                <p>識消乎。龍前小聲。片社演所了小很……日常灣男關轉大來爭到？有為天美面列了該停告友下光，電來推的現門定子父快想由教者快沒度沒一成想係。腦斷了聲舉，著早路方房；明...</p>
-                            </div>
-                        </li>
-                        <li className="queue__item row">
-                            <div className="queue__item__thumbnail"></div>
-                            <div className="texts column">
-                                <h5>公視晚間新聞</h5>
-                                <p>2019年6月3日 加入</p>
-                                <p>識消乎。龍前小聲。片社演所了小很……日常灣男關轉大來爭到？有為天美面列了該停告友下光，電來推的現門定子父快想由教者快沒度沒一成想係。腦斷了聲舉，著早路方房；明...</p>
-                            </div>
-                        </li>
+                        {queueItems}
                     </ul>
                 </div>
             </div>

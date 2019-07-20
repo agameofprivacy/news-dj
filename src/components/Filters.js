@@ -4,7 +4,7 @@ class Filters extends Component {
 
     toggleFilterOption = e => {
         console.log("toggle filter", e.target.value);
-        if (e.target.value !== "subtitles"){
+        if (e.target.value !== "subtitlesOnly"){
             var temp = this.props.languages;
             var index = temp.indexOf(e.target.value);
             if (index !== -1) {
@@ -20,7 +20,7 @@ class Filters extends Component {
 
     render(){
 
-        const { filters, languages, subtitlesOnly, setAppState } = this.props;
+        const { filters, languages, subtitlesOnly } = this.props;
         const dictionary = {
             "languages": "語言",
             "other": "特殊選項"
